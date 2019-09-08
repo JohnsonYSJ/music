@@ -106,7 +106,7 @@ public class UserController {
             model.addAttribute("info", "错误的验证码");
             return "login";
         } else {
-            //  model.addAttribute("info", "登录成功");
+            model.addAttribute("info", "登录成功");
             return "index";
         }
     }
