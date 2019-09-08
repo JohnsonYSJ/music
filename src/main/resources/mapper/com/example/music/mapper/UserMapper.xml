@@ -6,7 +6,7 @@
         SELECT * FROM user
     </select>
 
-    <select id="login">
+    <select id="login" parameterType="string" resultType="com.example.music.model.User">
         SELECT * FROM user WHERE email=#{email} and password=#{password}
     </select>
 

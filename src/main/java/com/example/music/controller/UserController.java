@@ -1,5 +1,7 @@
 package com.example.music.controller;
 
+import com.example.music.model.User;
+import com.example.music.service.UserService;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,9 +29,11 @@ import java.io.IOException;
 @RequestMapping("/user")
 public class UserController {
 
-    //region Description
     @Resource
     private DefaultKaptcha captchaProducer;
+
+    @Resource
+    private UserService service;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserController.class);
 
@@ -97,19 +101,38 @@ public class UserController {
         }
     }
 
-    @RequestMapping("/login")
-    public String verify(HttpServletRequest httpServletRequest, Model model) {
-        String captchaId = (String) httpServletRequest.getSession().getAttribute("verifyCode");
-        String parameter = httpServletRequest.getParameter("j_captcha");
+    private boolean verify(HttpServletRequest request) {
+        String captchaId = (String) request.getSession().getAttribute("verifyCode");
+        String parameter = request.getParameter("j_captcha");
         LOGGER.info("Session  j_captcha " + captchaId + " form j_captcha " + parameter);
-        if (!captchaId.equals(parameter)) {
-            model.addAttribute("info", "错误的验证码");
-            return "login";
-        } else {
-            model.addAttribute("info", "登录成功");
-            return "index";
-        }
+        return captchaId.equals(parameter);
     }
-    //endregion
+
+    @RequestMapping("/login")
+    public String verify(HttpServletRequest request, Model model) {
+        boolean flag = verify(request);
+        String email = request.getParameter("email");
+        String password = request.getParameter("password");
+        User user = service.login(email, password);
+        if (user != null) {
+            int type = user.getType();
+            if (flag && type == 0) {
+                model.addAttribute("name", user.getName());
+                //如果是管理员
+                return "/admin/index";
+            } else if (flag && type == 1) {
+                //如果是vip
+                model.addAttribute("name", user.getName());
+                return "index";
+            } else if (flag && type == 2) {
+                model.addAttribute("name", user.getName());
+                //如果登录了
+                return "index";
+            } else {
+                //游客
+            }
+        }
+        return "index";
+    }
 
 }

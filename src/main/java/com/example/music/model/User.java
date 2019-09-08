@@ -32,6 +32,11 @@ public class User {
     private String password;
 
     /**
+     * 验证码
+     */
+    private String verifyCode;
+
+    /**
      * 名字
      */
     private String name;
@@ -60,4 +65,5 @@ public class User {
      * 更新时间
      */
     private Date updateTime;
+
 }
